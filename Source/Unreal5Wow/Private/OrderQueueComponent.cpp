@@ -3,14 +3,10 @@
 
 #include "OrderQueueComponent.h"
 
-// Sets default values for this component's properties
 UOrderQueueComponent::UOrderQueueComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	//PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.SetTickFunctionEnable(true);
 }
 
 
@@ -22,15 +18,32 @@ UOrderQueueComponent::UOrderQueueComponent()
 //	// ...
 //	
 //}
-//
-//
-//// Called every frame
-//void UOrderQueueComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-//{
-//	//Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-//
-//	// ...
-//}
+
+void UOrderQueueComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (!CurrentOrders.IsEmpty())
+	{
+		// Send tick event to all orders
+		for (UOrder*& Order : CurrentOrders) 
+		{
+			Order->OnTick();
+		}
+
+		// Update the active order
+		if (!CurrentOrders[0]->IsCompleted())
+		{
+			CurrentOrders[0]->OnActiveTick();
+		}
+		else
+		{
+			CurrentOrders[0]->OnEnded();
+			CurrentOrders[0]->OnRemoved();
+			CurrentOrders.RemoveAt(0);
+		}	
+	}
+}
 
 void UOrderQueueComponent::GiveOrder(UOrder* NewOrder, EOrderQueuePlacement Placement)
 {
@@ -39,17 +52,19 @@ void UOrderQueueComponent::GiveOrder(UOrder* NewOrder, EOrderQueuePlacement Plac
 		switch (Placement)
 		{
 		case EOrderQueuePlacement::Front:
-			CurrentOrders.Insert(*NewOrder, 0);
+			CurrentOrders.Insert(NewOrder, 0);
 			break;
 		case EOrderQueuePlacement::ReplaceAll:
 			CurrentOrders.Empty();
-			CurrentOrders.Push(*NewOrder);
+			CurrentOrders.Push(NewOrder);
 			break;
 		case EOrderQueuePlacement::Back:
 		default:
-			CurrentOrders.Push(*NewOrder);
+			CurrentOrders.Push(NewOrder);
 			break;
 		}
+
+		NewOrder->OnIssued();
 	}
 }
 
