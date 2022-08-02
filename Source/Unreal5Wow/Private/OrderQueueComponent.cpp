@@ -31,15 +31,23 @@ void UOrderQueueComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 			Order->OnTick();
 		}
 
-		// Update the active order
-		if (!CurrentOrders[0]->IsCompleted())
+		UOrder* ActiveOrder = CurrentOrders[0];
+
+		if (!ActiveOrder->IsActivated())
 		{
-			CurrentOrders[0]->OnActiveTick();
+			ActiveOrder->Activate();
+			ActiveOrder->OnBegin();
+		}
+
+		// Update the active order
+		if (!ActiveOrder->IsCompleted())
+		{
+			ActiveOrder->OnActiveTick();
 		}
 		else
 		{
-			CurrentOrders[0]->OnEnded();
-			CurrentOrders[0]->OnRemoved();
+			ActiveOrder->OnEnded();
+			ActiveOrder->OnRemoved();
 			CurrentOrders.RemoveAt(0);
 		}	
 	}
@@ -52,10 +60,13 @@ void UOrderQueueComponent::GiveOrder(UOrder* NewOrder, EOrderQueuePlacement Plac
 		switch (Placement)
 		{
 		case EOrderQueuePlacement::Front:
+			CurrentOrders[0]->OnEnded();
+			CurrentOrders[0]->OnRemoved();
+			CurrentOrders.RemoveAt(0);
 			CurrentOrders.Insert(NewOrder, 0);
 			break;
 		case EOrderQueuePlacement::ReplaceAll:
-			CurrentOrders.Empty();
+			ClearOrders();
 			CurrentOrders.Push(NewOrder);
 			break;
 		case EOrderQueuePlacement::Back:
@@ -64,7 +75,22 @@ void UOrderQueueComponent::GiveOrder(UOrder* NewOrder, EOrderQueuePlacement Plac
 			break;
 		}
 
+		NewOrder->SetQueue(this);
+
 		NewOrder->OnIssued();
+		OrderIssuedEvent.Broadcast(NewOrder);
+	}
+}
+
+void UOrderQueueComponent::ClearOrders()
+{
+	if (!CurrentOrders.IsEmpty())
+	{
+		CurrentOrders[0]->OnEnded();
+		for (UOrder* Order : CurrentOrders)
+			Order->OnRemoved();
+
+		CurrentOrders.Empty();
 	}
 }
 

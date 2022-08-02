@@ -16,19 +16,42 @@ class UNREAL5WOW_API UOrder : public UObject
 {
 	GENERATED_BODY()
 private:
-	UOrder(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+protected:
+
+	UOrderQueueComponent* OwnerQueue;
 
 	/** The name of this type of order. */
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	FString Name;
 
 	/** True if this order has started its execution. */
-	uint32 Activated : 1;
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+	uint32 Activated:1;
 
 	/** True if this order has completed its execution. */
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	uint32 Completed:1;
 
 
 public:
+	UOrder(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	/** True if this order has started its execution. */
+	UFUNCTION(BlueprintCallable, Category = "RTS|Orders")
+	bool IsActivated() { return Activated; }
+
+	/** Lets this order know it is the currently active order. */
+	UFUNCTION(BlueprintCallable, Category = "RTS|Orders")
+	void Activate() { Activated = true; }
+
+	/** True if this order has completed its execution. */
+	UFUNCTION(BlueprintCallable, Category = "RTS|Orders")
+	bool IsCompleted() { return Completed; }
+
+	/** True if this order has completed its execution. */
+	UFUNCTION(BlueprintCallable, Category = "RTS|Orders")
+	void SetQueue(UOrderQueueComponent* Queue) { OwnerQueue = Queue; }
 
 	// Blueprint Events
 
@@ -59,16 +82,4 @@ public:
 	/** Called when this order is removed from the queue. */
 	UFUNCTION(BlueprintImplementableEvent, Category = "RTS|Orders")
 	void OnRemoved();
-
-	/** Called when another order is added to the queue. */
-	UFUNCTION(BlueprintImplementableEvent, Category = "RTS|Orders")
-	void OnOtherOrderIssued(UOrder* IssuedOrder);
-
-	/** Called when another order is removed from the queue. */
-	UFUNCTION(BlueprintImplementableEvent, Category = "RTS|Orders")
-	void OnOtherOrderRemoved(UOrder* RemovedOrder);
-
-	/** True if this order has completed its execution. */
-	UFUNCTION(BlueprintCallable, Category = "RTS|Orders")
-	bool IsCompleted() { return Completed; }
 };
