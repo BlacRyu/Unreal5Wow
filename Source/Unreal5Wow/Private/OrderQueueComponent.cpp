@@ -60,6 +60,7 @@ void UOrderQueueComponent::GiveOrder(UOrder* NewOrder, EOrderQueuePlacement Plac
 		switch (Placement)
 		{
 		case EOrderQueuePlacement::Front:
+			CurrentOrders[0]->OnInterrupted();
 			CurrentOrders[0]->OnEnded();
 			CurrentOrders[0]->OnRemoved();
 			CurrentOrders.RemoveAt(0);
@@ -86,6 +87,7 @@ void UOrderQueueComponent::ClearOrders()
 {
 	if (!CurrentOrders.IsEmpty())
 	{
+		CurrentOrders[0]->OnInterrupted();
 		CurrentOrders[0]->OnEnded();
 		for (UOrder* Order : CurrentOrders)
 			Order->OnRemoved();

@@ -23,33 +23,36 @@ protected:
 
 	/** The name of this type of order. */
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	FString Name;
+	FName OrderName;
 
 	/** True if this order has started its execution. */
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	uint32 Activated:1;
+	uint32 bActivated:1;
 
 	/** True if this order has completed its execution. */
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	uint32 Completed:1;
+	uint32 bCompleted:1;
 
 
 public:
 	UOrder(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+	UFUNCTION(BlueprintCallable, Category = "RTS|Orders")
+	FName GetName() { return OrderName; } const
+
 	/** True if this order has started its execution. */
 	UFUNCTION(BlueprintCallable, Category = "RTS|Orders")
-	bool IsActivated() { return Activated; }
+	bool IsActivated() { return bActivated; } const
 
 	/** Lets this order know it is the currently active order. */
 	UFUNCTION(BlueprintCallable, Category = "RTS|Orders")
-	void Activate() { Activated = true; }
+	void Activate() { bActivated = true; } const
 
 	/** True if this order has completed its execution. */
 	UFUNCTION(BlueprintCallable, Category = "RTS|Orders")
-	bool IsCompleted() { return Completed; }
+	bool IsCompleted() { return bCompleted; } const
 
-	/** True if this order has completed its execution. */
+
 	UFUNCTION(BlueprintCallable, Category = "RTS|Orders")
 	void SetQueue(UOrderQueueComponent* Queue) { OwnerQueue = Queue; }
 
@@ -75,7 +78,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "RTS|Orders")
 	void OnInterrupted();
 
-	/** Called when this order ends execution. */
+	/** Called any time this order ends execution. */
 	UFUNCTION(BlueprintImplementableEvent, Category = "RTS|Orders")
 	void OnEnded();
 
