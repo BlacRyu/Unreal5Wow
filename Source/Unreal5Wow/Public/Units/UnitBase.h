@@ -20,9 +20,11 @@ public:
 
 	// Ability System Component
 	UPROPERTY(Category = AbilitySystem, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	UAbilitySystemComponent* AbilitySystemComponent;
+	UAbilitySystemComponent* ASC;
 
 public:
+	//~ Begin IAbilitySystemInterface
 	/** Returns AbilitySystemComponent subobject **/
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return AbilitySystemComponent; }
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override { return ASC; }
+	//~ End IAbilitySystemInterface
 };
