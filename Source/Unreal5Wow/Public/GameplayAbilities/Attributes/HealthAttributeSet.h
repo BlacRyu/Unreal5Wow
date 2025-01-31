@@ -19,6 +19,9 @@ class UNREAL5WOW_API UHealthAttributeSet : public UAttributeSet
 {
 	GENERATED_BODY()
 
+	private:
+	UHealthAttributeSet(const FObjectInitializer& ObjectInitializer);
+
 	protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Health")
 	FGameplayAttributeData MaxHealth;
